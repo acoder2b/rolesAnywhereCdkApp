@@ -35,23 +35,11 @@ jobs:
           printf "%s" "$CERTIFICATE" > certificate.txt
           printf "%s" "$PRIVATE_KEY" > private_key.pem
 
-          ./aws_signing_helper credential-process --certificate certificate.txt --private-key private.key.pem --trust-anchor-arn ${{inputs.trust_anchor_arn}} --profile-arn ${{inputs.profile_arn}} --role-arn ${{inputs.role_arn}} > aws_credentials.json
+          ./aws_signing_helper credential-process --certificate certificate.txt --private-key private_key.pem --trust-anchor-arn ${{vars.TRUST_ANCHOR_ARN}} --profile-arn ${{vars.PROFILE_ARN}} --role-arn ${{vars.role_arn}} > aws_credentials.json
+
           export AWS_ACCESS_KEY_ID=$(jq -r '.AccessKeyId' aws_credentials.json)
           export AWS_SECRET_ACCESS_KEY=$(jq -r '.SecretAccessKey' aws_credentials.json)
           export AWS_SESSION_TOKEN=$(jq -r '.SessionToken' aws_credentials.json)
-          export AWS_REGION=${{ inputs.region }}
-
-          
-          # ./aws_signing_helper credential-process \
-          #   --certificate certificate.txt \
-          #   --private-key private_key.pem \
-          #   --trust-anchor-arn $TRUST_ANCHOR_ARN \
-          #   --profile-arn $PROFILE_ARN \
-          #   --role-arn $ROLE_ARN \
-            
-          # export AWS_ACCESS_KEY_ID=$(jq -r '.AccessKeyId' aws_credentials.json)
-          # export AWS_SECRET_ACCESS_KEY=$(jq -r '.SecretAccessKey' aws_credentials.json)
-          # export AWS_SESSION_TOKEN=$(jq -r '.SessionToken' aws_credentials.json)
       
       - name: Build TypeScript
         run: npm run build
