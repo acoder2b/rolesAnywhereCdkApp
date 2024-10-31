@@ -1,30 +1,28 @@
-name: GitHub actions demo for APG
+name: Deploy CDK App (TypeScript)
 
 on:
-    push:
-        branches: [main]
+  push:
+    branches: [main]
 
 env:
   AWS_REGION: us-east-1
 
 jobs:
-  IAMRolesAnywhereAuthentication:
+  DeployCDKApp:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.9"
-      - name: Set up Node
+      
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "16"
-      - name: Install Python dependencies and CDK
+          node-version: '16'
+      
+      - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          # install your Python dependencies here
+          npm ci
           npm install -g aws-cdk
+      
       - name: Configure AWS Credentials
         env:
           CERTIFICATE: ${{secrets.CERTIFICATE}}
@@ -41,4 +39,12 @@ jobs:
           export AWS_ACCESS_KEY_ID=$(jq -r '.AccessKeyId' aws_credentials.json)
           export AWS_SECRET_ACCESS_KEY=$(jq -r '.SecretAccessKey' aws_credentials.json)
           export AWS_SESSION_TOKEN=$(jq -r '.SessionToken' aws_credentials.json)
-
+      
+      - name: Build TypeScript
+        run: npm run build
+      
+      - name: CDK Synth
+        run: cdk synth
+      
+      - name: CDK Deploy
+        run: cdk deploy --all --require-approval never
