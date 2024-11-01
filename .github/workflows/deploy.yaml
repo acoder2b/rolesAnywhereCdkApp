@@ -23,6 +23,7 @@ jobs:
         run: |
           npm ci
           npm install -g aws-cdk
+          npm install --save-dev @types/node @types/jest # add types here if Jest is used
       
       - name: Configure AWS Credentials
         env:
@@ -51,6 +52,11 @@ jobs:
           echo "CDK_DEFAULT_ACCOUNT=$ACCOUNT_ID" >> $GITHUB_ENV
           echo "CDK_DEFAULT_REGION=$AWS_REGION" >> $GITHUB_ENV
 
+      - name: Verify Node.js and TypeScript Setup
+        run: |
+          node -v
+          npm -v
+          tsc -v          
       - name: Build TypeScript
         run: npm run build
       
