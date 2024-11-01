@@ -46,8 +46,9 @@ jobs:
           echo "AWS_SECRET_ACCESS_KEY=$(jq -r '.SecretAccessKey' aws_credentials.json)" >> $GITHUB_ENV
           echo "AWS_SESSION_TOKEN=$(jq -r '.SessionToken' aws_credentials.json)" >> $GITHUB_ENV
 
-          # Set hardcoded account ID and region as environment variables
-          echo "CDK_DEFAULT_ACCOUNT=909180469036" >> $GITHUB_ENV
+          # Retrieve AWS Account ID dynamically
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          echo "CDK_DEFAULT_ACCOUNT=$ACCOUNT_ID" >> $GITHUB_ENV
           echo "CDK_DEFAULT_REGION=us-east-1" >> $GITHUB_ENV
 
       - name: Build TypeScript
@@ -58,8 +59,8 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
-          CDK_DEFAULT_ACCOUNT: 909180469036  # Hardcoded account ID
-          CDK_DEFAULT_REGION: us-east-1      # Hardcoded region
+          CDK_DEFAULT_ACCOUNT: ${{ env.CDK_DEFAULT_ACCOUNT }}
+          CDK_DEFAULT_REGION: ${{ env.CDK_DEFAULT_REGION }}
         run: cdk synth
 
       - name: CDK Deploy
@@ -67,6 +68,6 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
-          CDK_DEFAULT_ACCOUNT: 909180469036  # Hardcoded account ID
-          CDK_DEFAULT_REGION: us-east-1      # Hardcoded region
+          CDK_DEFAULT_ACCOUNT: ${{ env.CDK_DEFAULT_ACCOUNT }}
+          CDK_DEFAULT_REGION: ${{ env.CDK_DEFAULT_REGION }}
         run: cdk deploy --all --require-approval never
