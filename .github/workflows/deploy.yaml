@@ -51,6 +51,7 @@ jobs:
           echo "AWS_ACCOUNT_ID=$ACCOUNT_ID" >> $GITHUB_ENV
           echo "CDK_DEFAULT_ACCOUNT=$ACCOUNT_ID" >> $GITHUB_ENV
           echo "CDK_DEFAULT_REGION=$AWS_REGION" >> $GITHUB_ENV
+          # Set hardcoded account ID and region as environment variables
 
       - name: Verify Node.js and TypeScript Setup
         run: |
@@ -61,6 +62,12 @@ jobs:
         run: npm run build
       
       - name: CDK Synth
+        env:
+          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
+          CDK_DEFAULT_ACCOUNT: ${{ env.CDK_DEFAULT_ACCOUNT }}
+          CDK_DEFAULT_REGION: ${{ env.CDK_DEFAULT_REGION }}
         run: cdk synth
       
       - name: CDK Deploy
