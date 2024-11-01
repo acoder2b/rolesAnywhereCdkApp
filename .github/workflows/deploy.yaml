@@ -42,12 +42,15 @@ jobs:
           ./aws_signing_helper credential-process --certificate certificate.txt --private-key private_key.pem --trust-anchor-arn ${{ vars.TRUST_ANCHOR_ARN }} --profile-arn ${{ vars.PROFILE_ARN }} --role-arn ${{ vars.role_arn }} > aws_credentials.json
 
           # Export credentials as environment variables
-          echo "AWS_ACCESS_KEY_ID=$(jq -r '.AccessKeyId' aws_credentials.json)" >> $GITHUB_ENV
-          echo "AWS_SECRET_ACCESS_KEY=$(jq -r '.SecretAccessKey' aws_credentials.json)" >> $GITHUB_ENV
-          echo "AWS_SESSION_TOKEN=$(jq -r '.SessionToken' aws_credentials.json)" >> $GITHUB_ENV
+          export AWS_ACCESS_KEY_ID=$(jq -r '.AccessKeyId' aws_credentials.json)
+          export AWS_SECRET_ACCESS_KEY=$(jq -r '.SecretAccessKey' aws_credentials.json)
+          export AWS_SESSION_TOKEN=$(jq -r '.SessionToken' aws_credentials.json)
 
           # Retrieve AWS Account ID dynamically
-          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          ACCOUNT_ID=$(AWS_ACCESS_KEY_ID=$(jq -r '.AccessKeyId' aws_credentials.json) \
+                       AWS_SECRET_ACCESS_KEY=$(jq -r '.SecretAccessKey' aws_credentials.json) \
+                       AWS_SESSION_TOKEN=$(jq -r '.SessionToken' aws_credentials.json) \
+                       aws sts get-caller-identity --query Account --output text)
           echo "CDK_DEFAULT_ACCOUNT=$ACCOUNT_ID" >> $GITHUB_ENV
           echo "CDK_DEFAULT_REGION=us-east-1" >> $GITHUB_ENV
 
