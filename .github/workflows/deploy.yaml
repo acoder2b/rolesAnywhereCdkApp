@@ -23,7 +23,7 @@ jobs:
         run: |
           npm ci
           npm install -g aws-cdk
-          npm install --save-dev @types/node @types/jest # add types here if Jest is used
+        
       
       - name: Configure AWS Credentials
         env:
